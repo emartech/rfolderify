@@ -1,9 +1,8 @@
 var path = require('path');
+var fs = require('fs');
 
 var through = require('through');
 var falafel = require('falafel');
-
-var rfileModules = ['rfile', 'ruglify'];
 
 module.exports = function (file) {
     if (/\.json$/.test(file)) return through();
@@ -22,20 +21,22 @@ module.exports = function (file) {
         var parsed = false;
         try {
             var output = falafel(data, function (node) {
-                if (requireName(node) && rfileModules.indexOf(requireName(node)) != -1 && variableDeclarationName(node.parent)) {
-                    rfileNames['key:' + variableDeclarationName(node.parent)] = requireName(node);
-                    node.update('undefined');
-                }
-                if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && rfileNames['key:' + node.callee.name]) {
-                    var rfile = require(rfileNames['key:' + node.callee.name]);
-                    var args = node.arguments;
-                    for (var i = 0; i < args.length; i++) {
-                        var t = 'return ' + (args[i]).source();
-                        args[i] = Function(varNames, t).apply(null, vars);
-                    }
-                    args[1] = args[1] || {};
-                    args[1].basedir = args[1].basedir || dirname;
-                    node.update(JSON.stringify(rfile.apply(null, args)));
+                if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === 'rfolder') {
+                    var arg = node.arguments[0];
+                    var t = 'return ' + arg.source();
+                    arg = Function(varNames, t).apply(null, vars);
+                    listRequireables(arg,function(ex,files) {
+                        if(ex) {
+                            if (parsed) return tr.emit('error', ex), tr.queue(data), tr.queue(null);
+                            else return tr.queue(data), tr.queue(null);
+                        }
+                        var obj = '{';
+                        for(var p in files) if(({}).hasOwnProperty.call(files,p)) {
+                            obj += JSON.stringify(p)+': require('+JSON.stringify(files[p])+'),';
+                        }
+                        obj += '}';
+                        node.update(obj);
+                    });
                 }
             });
         } catch (ex) {
@@ -47,14 +48,19 @@ module.exports = function (file) {
     }
 };
 
-function requireName(node) {
-    var c = node.callee;
-    if (c && node.type === 'CallExpression' && c.type === 'Identifier' && c.name === 'require') {
-        return node.arguments[0].value;
-    }
-}
-function variableDeclarationName(node) {
-    if (node && node.type === 'VariableDeclarator' && node.id.type === 'Identifier') {
-        return node.id.name;
-    }
+function listRequireables(dir,cb) {
+    fs.readDir(dir,function(err,files) {
+        if(err) return cb(err);
+        var results = {}, file, base, full, ext;
+        for(var i = 0, l = files.length; i < l; ++i) {
+            file = files[i];
+            ext = path.extname(file);
+            if(ext in require.extensions) { // yup, this works with (coffee|live)ify
+                base = path.basename(file,ext);
+                full = path.resolve(dir,file);
+                results[base] = full;
+            }
+        }
+        cb(null,results);
+    });
 }
