@@ -1,7 +1,3 @@
-var load = require('rfile');
-var loadSRC = require('ruglify');
+var files = rfolder(join(__dirname,"dir"));
 
-console.log(load('./robot.html'));
-console.log(load('./robot', {extensions: ['.html']}));
-
-console.dir(Function('return ' + loadSRC('./answer.js'))());
+console.log(files.test);
