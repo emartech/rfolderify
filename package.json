@@ -1,24 +1,27 @@
 {
-  "name": "rfileify",
+  "name": "rfolderify",
   "version": "1.1.1",
-  "description": "Convert any code using rfile and derivatives so that it supports browserify",
+  "description": "Rewrite rfolder calls to a map of requires",
   "main": "index.js",
   "bin": {
-    "rfileify": "./bin/rfileify"
+    "rfileify": "./bin/rfolderify"
   },
   "scripts": {
     "test": "mocha -R spec"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ForbesLindesay/rfileify.git"
+    "url": "https://github.com/quarterto/rfolderify.git"
   },
   "keywords": [
-    "browserify", "fs", "readFileSync", "plugin", "static",
+    "browserify", "fs", "readdir", "plugin", "static",
     "asset", "bundle", "base64", "uglify", "require", "resolve",
-    "browser", "rfile"
+    "browser", "rfolder"
   ],
   "author": "ForbesLindesay",
+  "contributors": [
+    "quarterto <matt.brennan@import.io>"
+  ],
   "license": "MIT",
   "dependencies": {
     "through": "~2.3.1",
@@ -26,8 +29,6 @@
   },
   "devDependencies": {
     "mocha": "~1.9",
-    "browserify": "~2.12",
-    "rfile": "~1.0.0",
-    "ruglify": "~1.0.0"
+    "browserify": "~2.12"
   }
 }
