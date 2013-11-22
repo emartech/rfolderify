@@ -2,8 +2,8 @@
 
   Convert any code using rfile and derivatives so that it supports browserify.
 
-[![Build Status](https://travis-ci.org/quaterto/rfolderify.png?branch=master)](https://travis-ci.org/quaterto/rfolderify)
-[![Dependency Status](https://gemnasium.com/quaterto/rfolderify.png)](https://gemnasium.com/quaterto/rfolderify)
+[![Build Status](https://travis-ci.org/quarterto/rfolderify.png?branch=master)](https://travis-ci.org/quarterto/rfolderify)
+[![Dependency Status](https://gemnasium.com/quarterto/rfolderify.png)](https://gemnasium.com/quarterto/rfolderify)
 
   This module is a plugin for [browserify](http://browserify.org/) to parse the AST for `rfolder` calls so that you can inline the folder contents into your bundles.
 
@@ -56,4 +56,4 @@ rfolderify --help
 
 MIT
 
-![viewcount](https://viewcount.jepso.com/count/quatert/rfolderify.png)
+![viewcount](https://viewcount.jepso.com/count/quarterto/rfolderify.png)
