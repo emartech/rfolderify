@@ -18,7 +18,7 @@ module.exports = function (file) {
 
     var tr = through(write, end);
     return tr;
-    
+
     function write (buf) { data += buf }
     function end () {
         try {
@@ -50,19 +50,21 @@ module.exports = function (file) {
                 var parentDir = path.dirname(file);
                 var folder = path.resolve(parentDir, args[0])
 
-                var options = args[1] || {}
-                options.require = args[1].require || "require";
-                options.checkExt = args[1].checkExt != null ? args[1].checkExt : true;
-                options.keepExt = args[1].keepExt || false;
+                var options = args[1] || {};
+                options.require = options.require || "require";
+                options.checkExt = options.checkExt != null ? options.checkExt : true;
+                options.keepExt = options.keepExt || false;
                 // By default, require anything that node.js would require
-                options.extensions = args[1].extensions || Object.keys(require.extensions);
+                options.extensions = options.extensions || Object.keys(require.extensions);
 
 
                 listRequireables(folder, options, function(err,files) {
                     if(err) return tr.emit('error',err);
                     var obj = '{';
                     for(var p in files) if(({}).hasOwnProperty.call(files,p)) {
-                        obj += JSON.stringify(p)+': '+args[1].require+'('+JSON.stringify(files[p])+'),';
+                        // Turn absolute paths back into relative paths.
+                        relativePath = './' + path.relative(parentDir, files[p])
+                        obj += JSON.stringify(p)+': '+options.require+'('+JSON.stringify(relativePath)+'),';
                     }
                     obj = obj.substr(0,obj.length-1); //remove trailing comma
                     obj += '}';
