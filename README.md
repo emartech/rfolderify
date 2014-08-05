@@ -12,15 +12,16 @@
   For a main.js
 
 ```javascript
-var rfolder = require('rfolder');
 var contents = rfolder('./misc');
-console.log(contents['robot.html']);
+console.log(contents['robot'].hello());
 ```
 
-  And a misc/robot.html
+  And a misc/robot.js file.
 
-```html
-<b>beep boop</b>
+```javascript
+exports.hello = function() {
+    return("Beep boop");
+}
 ```
 
   first `npm install rfolderify` into your project, then:
@@ -42,6 +43,28 @@ b.transform('rfolderify');
 
 b.bundle().pipe(fs.createWriteStream('bundle.js'));
 ```
+
+## More options
+
+You can pass an `options` parameter to rfolder:
+
+```javascript
+var contents = rfolder('./misc', {extensions: [".coffee", ".jade"], keepExt: [".jade"]});
+```
+
+Valid options are:
+
+* `extensions` - A list of extensions to require.  If this is not provided, the default is to
+  require any file which node.js would require. e.g. `[".js", ".coffee", ".jade"]` to require all
+  .js, .coffee, and .jade files from the directory.
+* `checkExt` - If false, then `extensions` will be ignored, and all files will be required
+  regardless of their extension.
+* `keepExt` - By default, rfolder strips extensions from file names when generating keys for the
+  folder object.  `keepExt` can be set `true` to keep all extensions, or to an array of extensions
+  to keep.  For example, if you have a folder containing a "robot.js" and a "robot.jade", then
+  passing `{keepExt: '.jade'}` would make it so `contents['robot']` would refer to the .coffee file,
+  while `contents['robot.jade']` would refer to the jade file.
+* `require` - JS string used to require each file.  Defaults to "require".
 
 ## Direct Usage
 

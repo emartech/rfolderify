@@ -6,7 +6,7 @@ var falafel = require('falafel');
 
 var defaults = {require:"require",}
 
-module.exports = function (file, options) {
+module.exports = function (file) {
     if (/\.json$/.test(file)) return through();
 
     var data = '';
@@ -18,7 +18,7 @@ module.exports = function (file, options) {
 
     var tr = through(write, end);
     return tr;
-    
+
     function write (buf) { data += buf }
     function end () {
         try {
@@ -38,20 +38,33 @@ module.exports = function (file, options) {
         var output = falafel(data, function (node) {
             if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === 'rfolder') {
                 ++pending;
+
+                // Parse arguemnts to calls to `require(module, options)`
                 var args = node.arguments;
                 for (var i = 0; i < args.length; i++) {
                     var t = 'return ' + (args[i]).source();
                     args[i] = Function(varNames, t).apply(null, vars);
                 }
-                args[1] = args[1] || {};
-                args[1].require = args[1].require || "require";
-                args[1].checkExt = args[1].checkExt != null ? args[1].checkExt : true;
 
-                listRequireables(args[0],args[1].checkExt,function(err,files) {
+                // Resolve the foler to require relative the file which is requiring it
+                var parentDir = path.dirname(file);
+                var folder = path.resolve(parentDir, args[0])
+
+                var options = args[1] || {};
+                options.require = options.require || "require";
+                options.checkExt = options.checkExt != null ? options.checkExt : true;
+                options.keepExt = options.keepExt || false;
+                // By default, require anything that node.js would require
+                options.extensions = options.extensions || Object.keys(require.extensions);
+
+
+                listRequireables(folder, options, function(err,files) {
                     if(err) return tr.emit('error',err);
                     var obj = '{';
                     for(var p in files) if(({}).hasOwnProperty.call(files,p)) {
-                        obj += JSON.stringify(p)+': '+args[1].require+'('+JSON.stringify(files[p])+'),';
+                        // Turn absolute paths back into relative paths.
+                        relativePath = './' + path.relative(parentDir, files[p])
+                        obj += JSON.stringify(p)+': '+options.require+'('+JSON.stringify(relativePath)+'),';
                     }
                     obj = obj.substr(0,obj.length-1); //remove trailing comma
                     obj += '}';
@@ -64,17 +77,23 @@ module.exports = function (file, options) {
     }
 };
 
-function listRequireables(dir,check,cb) {
+function listRequireables(dir,options,cb) {
     fs.readdir(dir,function(err,files) {
         if(err) return cb(err);
-        var results = {}, file, base, full, ext;
+        var results = {}, file, base, full, ext, symbol, shouldRequire, keepExt;
         for(var i = 0, l = files.length; i < l; ++i) {
             file = files[i];
             ext = path.extname(file);
-            if(!check || ext in require.extensions) { // yup, this works with (coffee|live)ify
-                base = path.basename(file,ext);
+
+            shouldRequire = !options.checkExt ||
+                (options.extensions.indexOf(ext) != -1);
+
+            if(shouldRequire) {
+                keepExt = (options.keepExt === true) ||
+                    (options.keepExt && options.keepExt.indexOf(ext) != -1)
+                symbol = keepExt ? file : path.basename(file,ext);
                 full = path.resolve(dir,file);
-                results[base] = full;
+                results[symbol] = full;
             }
         }
         cb(null,results);
