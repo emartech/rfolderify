@@ -20,7 +20,8 @@
   ],
   "author": "ForbesLindesay",
   "contributors": [
-    "quarterto <matt.brennan@import.io>"
+    "quarterto <mwrbrennan@gmail.com>",
+    "Jason Walton <dev@lucid.thedreaming.org>"
   ],
   "license": "MIT",
   "dependencies": {
