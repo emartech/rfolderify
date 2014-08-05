@@ -1,6 +1,6 @@
 {
   "name": "rfolderify",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Rewrite rfolder calls to a map of requires",
   "main": "index.js",
   "bin": {
@@ -14,9 +14,19 @@
     "url": "https://github.com/quarterto/rfolderify.git"
   },
   "keywords": [
-    "browserify", "fs", "readdir", "plugin", "static",
-    "asset", "bundle", "base64", "uglify", "require", "resolve",
-    "browser", "rfolder"
+    "browserify",
+    "fs",
+    "readdir",
+    "plugin",
+    "static",
+    "asset",
+    "bundle",
+    "base64",
+    "uglify",
+    "require",
+    "resolve",
+    "browser",
+    "rfolder"
   ],
   "author": "ForbesLindesay",
   "contributors": [
