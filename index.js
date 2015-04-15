@@ -81,7 +81,7 @@ module.exports = function (file) {
 function listRequireables(dir,options,cb) {
     var results = {}, file, base, full, ext, symbol, shouldRequire, keepExt;
 
-    fs.readdir(dir,function(err,files) {
+    wrench.readdirRecursive(dir,function(err,files) {
         if(err) return cb(err);
         if (!files) return cb(null, results);
 
