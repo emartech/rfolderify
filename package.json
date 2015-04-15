@@ -1,6 +1,6 @@
 {
   "name": "rfolderify",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Rewrite rfolder calls to a map of requires",
   "main": "index.js",
   "bin": {
