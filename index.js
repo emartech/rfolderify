@@ -5,6 +5,7 @@ var through = require('through');
 var falafel = require('falafel');
 
 var defaults = {require:"require",}
+var wrench = require('wrench');
 
 module.exports = function (file) {
     if (/\.json$/.test(file)) return through();
@@ -78,9 +79,12 @@ module.exports = function (file) {
 };
 
 function listRequireables(dir,options,cb) {
+    var results = {}, file, base, full, ext, symbol, shouldRequire, keepExt;
+
     fs.readdir(dir,function(err,files) {
         if(err) return cb(err);
-        var results = {}, file, base, full, ext, symbol, shouldRequire, keepExt;
+        if (!files) return cb(null, results);
+
         for(var i = 0, l = files.length; i < l; ++i) {
             file = files[i];
             ext = path.extname(file);
@@ -96,6 +100,5 @@ function listRequireables(dir,options,cb) {
                 results[symbol] = full;
             }
         }
-        cb(null,results);
     });
 }
